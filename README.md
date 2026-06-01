@@ -48,6 +48,7 @@ paperlens/
 │   └── test_database.py
 ├── pyproject.toml
 ├── .env.example
+├── setup.sh                     One-command setup
 └── run.py                       Launch script
 ```
 
@@ -66,58 +67,40 @@ paperlens/
 - Python ≥ 3.12
 - [uv](https://docs.astral.sh/uv/) (package manager)
 
-### Installation
+### Setup (30 seconds)
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/paperlens.git
-cd paperlens
-
-# Create a .env file from the template and add your API key(s)
-cp .env.example .env
-
-# Install dependencies
-uv sync
-
-# (Optional) Install dev dependencies for testing/linting
-uv sync --extra dev
-```
-
-### Configuration
-
-Edit `.env`:
-
-```ini
-# AI provider: openai, gemini, or ollama
-AI_PROVIDER=openai
-
-# OpenAI
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
-
-# Google Gemini
-GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.0-flash
-
-# Local Ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2
-```
-
-You only need to configure **one** provider. The rest can stay blank.
-
-### Running
-
-```bash
-# Start both backend and frontend
-uv run python run.py
-
-# Start individually
-uv run python run.py --api     # API only (http://127.0.0.1:8000)
-uv run python run.py --ui      # UI only  (http://127.0.0.1:8501)
+git clone https://github.com/pr-hari-jayanth/PaperLens.git
+cd PaperLens
+bash setup.sh            # creates .env, installs deps
+# then edit .env with your API key
+uv run python run.py     # starts both backend & frontend
 ```
 
 Open **http://127.0.0.1:8501** in your browser.
+
+### Configuration
+
+Only **one** provider is needed. Edit `.env`:
+
+```ini
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+```
+
+Or for Ollama (no API key needed):
+
+```ini
+AI_PROVIDER=ollama
+OLLAMA_MODEL=llama3.2
+```
+
+### Start individually
+
+```bash
+uv run python run.py --api     # backend only  (http://127.0.0.1:8000)
+uv run python run.py --ui      # frontend only (http://127.0.0.1:8501)
+```
 
 ---
 

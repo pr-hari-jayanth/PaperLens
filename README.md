@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="PaperLens" width="100%">
+</p>
+
 # 🔬 PaperLens
 
 **Research paper analysis tool** — upload a PDF, get structured summaries, key findings, and a plain-English explanation.

@@ -7,13 +7,29 @@ __pycache__/
 *.egg-info/
 .venv/
 
+# Node / frontend build
+node_modules/
+frontend/landing/node_modules/
+frontend/landing/dist/
+
 # Database
 *.db
 uploads/*.db
 
+# Uploaded PDFs and generated reports
+uploads/*.pdf
+reports/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
 # Cache
 .ruff_cache/
 .pytest_cache/
+__pycache__/
 
 # OS
 .DS_Store

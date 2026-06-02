@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """PaperLens — entry point.
 
-Starts both the FastAPI backend and the Streamlit frontend.
+Starts the FastAPI backend. The landing page at http://127.0.0.1:8000
+is the primary interface — upload PDFs and view analyses directly.
+
+The legacy Streamlit frontend can be launched with --legacy-ui.
 
 Usage:
-    python run.py            # starts both
+    python run.py            # starts API (default)
+    python run.py --legacy-ui   # starts API + legacy Streamlit UI
     python run.py --api      # starts API only
-    python run.py --ui       # starts UI only
+    python run.py --ui       # starts legacy Streamlit UI only
 """
 
 from __future__ import annotations
@@ -32,7 +36,7 @@ def start_api() -> subprocess.Popen:
     )
 
 
-def start_ui() -> subprocess.Popen:
+def start_legacy_ui() -> subprocess.Popen:
     return subprocess.Popen(
         [
             sys.executable,
@@ -47,30 +51,41 @@ def start_ui() -> subprocess.Popen:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="PaperLens — research paper analyser")
+    parser = argparse.ArgumentParser(
+        description="PaperLens — research paper analyser"
+    )
+    parser.add_argument(
+        "--legacy-ui",
+        action="store_true",
+        help="Also launch the legacy Streamlit frontend on port 8501",
+    )
     parser.add_argument("--api", action="store_true", help="Start API only")
-    parser.add_argument("--ui", action="store_true", help="Start UI only")
+    parser.add_argument("--ui", action="store_true", help="Start legacy Streamlit UI only")
     args = parser.parse_args()
-
-    api_only = args.api
-    ui_only = args.ui
 
     processes: list[subprocess.Popen] = []
 
-    if ui_only:
-        processes.append(start_ui())
-    elif api_only:
+    if args.ui:
+        processes.append(start_legacy_ui())
+    elif args.api:
         processes.append(start_api())
     else:
         processes.append(start_api())
-        processes.append(start_ui())
+        if args.legacy_ui:
+            processes.append(start_legacy_ui())
 
-    print("PaperLens running — press Ctrl+C to stop.")
+    if not processes:
+        processes.append(start_api())
+
+    print("PaperLens API running at http://127.0.0.1:8000")
+    print("Open in your browser to upload and analyse papers.")
+    print("Press Ctrl+C to stop.")
+
     try:
         for p in processes:
             p.wait()
     except KeyboardInterrupt:
-        print("\nShutting down…")
+        print("\nShutting down\u2026")
         for p in processes:
             p.terminate()
         for p in processes:

@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-dark text-gray-300 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.3);
+    color: #fff;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-accent-light;
+  }
+
+  .text-gradient-accent {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent via-accent-light to-accent-magenta;
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 60px rgba(99, 102, 241, 0.15),
+                0 0 120px rgba(139, 92, 246, 0.1);
+  }
+
+  .glow-purple-sm {
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+  }
+
+  .border-glow {
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .border-glow:hover {
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+
+  .bg-radial-glow {
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(99, 102, 241, 0.08) 0%,
+      transparent 60%
+    );
+  }
+
+  .bg-radial-glow-hero {
+    background: radial-gradient(
+      ellipse at 50% 0%,
+      rgba(99, 102, 241, 0.12) 0%,
+      rgba(139, 92, 246, 0.05) 30%,
+      transparent 70%
+    );
+  }
+}

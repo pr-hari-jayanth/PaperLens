@@ -2,18 +2,18 @@
   <img src="assets/banner.png" alt="PaperLens" width="100%">
 </p>
 
-# 🔬 PaperLens
+# PaperLens
 
 **Research paper analysis tool** — upload a PDF, get structured summaries, key findings, and a plain-English explanation.
 
 PaperLens extracts text from a research paper via [PyMuPDF](https://pymupdf.readthedocs.io/), sends it to an LLM provider (OpenAI, Gemini, or local Ollama), and returns:
 
-- **Executive Summary** – high-level overview (2–3 paragraphs)
-- **Key Findings** – 5 major takeaways as bullet points
-- **Methodology** – description of the methods used
-- **Conclusion** – summary of conclusions
-- **Keywords** – 5–10 important terms
-- **Simple Explanation** – ≤300 words aimed at a motivated high-school student
+- **Executive Summary** — high-level overview (2–3 paragraphs)
+- **Key Findings** — 5 major takeaways as bullet points
+- **Methodology** — description of the methods used
+- **Conclusion** — summary of conclusions
+- **Keywords** — 5–10 important terms
+- **Simple Explanation** — ≤300 words aimed at a motivated high-school student
 
 Results can be downloaded as a Markdown report.
 
@@ -24,7 +24,7 @@ Results can be downloaded as a Markdown report.
 ```
 paperlens/
 ├── app/
-│   ├── main.py                  FastAPI application (CORS, lifespan)
+│   ├── main.py                  FastAPI application (CORS, lifespan, static mount)
 │   ├── config.py                Environment-based config via pydantic-settings
 │   ├── database.py              SQLite CRUD for paper records
 │   ├── exceptions.py            Custom error classes
@@ -45,11 +45,25 @@ paperlens/
 │   └── api/
 │       └── routes.py            REST endpoints
 ├── frontend/
-│   └── streamlit_app.py         Streamlit UI
+│   ├── landing/                 Primary React UI (dark theme, drag-drop upload)
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── Navbar.jsx
+│   │   │   │   ├── Hero.jsx         Upload zone, progress, success states
+│   │   │   │   ├── FeaturesSection.jsx
+│   │   │   │   ├── HowItWorks.jsx
+│   │   │   │   ├── SetupGuide.jsx    Provider config & API key instructions
+│   │   │   │   ├── DashboardPreview.jsx  Real analysis results display
+│   │   │   │   └── Footer.jsx
+│   │   │   └── App.jsx
+│   │   ├── package.json
+│   │   └── vite.config.js
+│   └── streamlit_app.py         Legacy Streamlit UI (optional)
 ├── tests/
 │   ├── test_pdf_parser.py
 │   ├── test_report_generator.py
-│   └── test_database.py
+│   ├── test_database.py
+│   └── test_upload.py           API upload E2E tests
 ├── pyproject.toml
 ├── .env.example
 ├── setup.sh                     One-command setup
@@ -58,9 +72,10 @@ paperlens/
 
 ### Design decisions
 
-- **AI provider abstraction** – the LLM provider implements a 3-method ABC (`generate`, `name`, `is_available`). The summarizer and keyword extractor never import an SDK directly. Adding a new provider means writing one class and registering it in the factory.
-- **FastAPI backend + Streamlit frontend** – decoupled via HTTP. The frontend can be replaced with any web framework without touching the analysis pipeline.
-- **Stateless services** – every service receives a provider instance; nothing is hard-wired to a specific model.
+- **AI provider abstraction** — the LLM provider implements a 3-method ABC (`generate`, `name`, `is_available`). The summarizer and keyword extractor never import an SDK directly. Adding a new provider means writing one class and registering it in the factory.
+- **React landing page as primary UI** — built with Vite + Tailwind, served by FastAPI at `/`. No separate frontend server needed. Analyses are triggered directly from the browser via `fetch('/api/upload')`.
+- **Stateless services** — every service receives a provider instance; nothing is hard-wired to a specific model.
+- **Dark-mode design** — consistent purple-accented theme across all pages.
 
 ---
 
@@ -70,22 +85,23 @@ paperlens/
 
 - Python ≥ 3.12
 - [uv](https://docs.astral.sh/uv/) (package manager)
+- Node.js ≥ 18 (for building the landing page)
 
 ### Setup (30 seconds)
 
 ```bash
 git clone https://github.com/pr-hari-jayanth/PaperLens.git
 cd PaperLens
-bash setup.sh            # creates .env, installs deps
+bash setup.sh                          # creates .env, installs deps, builds landing page
 # then edit .env with your API key
-uv run python run.py     # starts both backend & frontend
+uv run python run.py                   # starts the backend
 ```
 
-Open **http://127.0.0.1:8501** in your browser.
+Open **http://127.0.0.1:8000** in your browser — the landing page is served directly by the API.
 
 ### Configuration
 
-Only **one** provider is needed. Edit `.env`:
+Only **one** AI provider is needed. Edit `.env`:
 
 ```ini
 AI_PROVIDER=openai
@@ -99,11 +115,14 @@ AI_PROVIDER=ollama
 OLLAMA_MODEL=llama3.2
 ```
 
-### Start individually
+A **Setup Guide** section is also available inside the app itself (click "Setup" in the navbar) with direct links to API key pages and a live `.env` preview.
+
+### Legacy Streamlit UI
+
+A Streamlit-based UI from earlier versions is still available:
 
 ```bash
-uv run python run.py --api     # backend only  (http://127.0.0.1:8000)
-uv run python run.py --ui      # frontend only (http://127.0.0.1:8501)
+uv run python run.py --legacy-ui       # starts API + legacy Streamlit on :8501
 ```
 
 ---
@@ -137,8 +156,8 @@ uv run pytest tests/ -v
 
 ## Roadmap
 
-- **Phase 2** – paper comparison, flashcard generation, citation extraction, PowerPoint export, research timelines
-- **Phase 3** – batch processing, PDF annotation overlay, multi-user support
+- **Phase 2** — paper comparison, flashcard generation, citation extraction, PowerPoint export, research timelines
+- **Phase 3** — batch processing, PDF annotation overlay, multi-user support
 
 ---
 

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
+
+LANDING_DIR = Path(__file__).resolve().parent.parent / "frontend" / "landing" / "dist"
 
 
 @asynccontextmanager
@@ -33,3 +37,6 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix="/api")
+
+if LANDING_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=str(LANDING_DIR), html=True), name="landing")

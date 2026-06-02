@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse
 from app.ai.factory import get_provider
 from app.config import settings
 from app.database import Database
-from app.exceptions import PDFParsingError
+from app.exceptions import AIServiceError, ConfigError, PDFParsingError
 from app.models.paper import PaperAnalysis, PaperRecord
 from app.services.keyword_extractor import extract_keywords
 from app.services.pdf_parser import parse_pdf
@@ -48,7 +48,10 @@ async def upload_pdf(file: UploadFile = File(...)) -> dict:
         raise HTTPException(status_code=422, detail=str(exc))
 
     # --- Analyse with AI ---
-    provider = get_provider()
+    try:
+        provider = get_provider()
+    except ConfigError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
     # Run summarisation, keyword extraction, and simple explanation concurrently
     # (the provider calls are async so we can gather them)
@@ -60,9 +63,12 @@ async def upload_pdf(file: UploadFile = File(...)) -> dict:
         provider, extracted.text, extracted.metadata.title
     )
 
-    summary, keywords, explanation = await asyncio.gather(
-        summary_task, keywords_task, explanation_task
-    )
+    try:
+        summary, keywords, explanation = await asyncio.gather(
+            summary_task, keywords_task, explanation_task
+        )
+    except (AIServiceError, ConfigError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
 
     # Build the full analysis
     analysis = PaperAnalysis(
